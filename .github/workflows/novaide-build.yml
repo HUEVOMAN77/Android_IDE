@@ -111,22 +111,13 @@ jobs:
               -keyalg RSA -keysize 2048 -validity 10000 \
               -dname "CN=Android Debug,O=Android,C=US"
           fi
+          # En este runner AGP resuelve ~/.config/.android, no ~/.android.
+          # ANDROID_USER_HOME es la primera variable que consulta.
+          echo "ANDROID_USER_HOME=$HOME/.android" >> "$GITHUB_ENV"
           keytool -list -keystore ~/.android/debug.keystore -storepass android | head -8
 
-      - name: Diagnóstico de firma
-        run: |
-          env | grep -i android | sort
-          echo "HOME=$HOME"
-          ls -la ~/.android
-          set +e
-          ./gradlew :app:validateSigningV8Debug --no-daemon --max-workers=4 --stacktrace --info \
-            > "$RUNNER_TEMP/validate.log" 2>&1
-          status=$?
-          set -e
-          grep -n "Creating default debug keystore" "$RUNNER_TEMP/validate.log" || echo "sin linea de creacion"
-          grep -n "user.home\|androidDir\|ANDROID_USER_HOME" "$RUNNER_TEMP/validate.log" | head -5
-          tail -n 30 "$RUNNER_TEMP/validate.log"
-          exit $status
+      - name: Validar firma
+        run: ./gradlew :app:validateSigningV8Debug --no-daemon --max-workers=4
 
       - name: Descargar assets de runtime
         run: ./gradlew :app:assetsDownloadDebug --no-daemon --max-workers=4
