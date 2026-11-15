@@ -105,28 +105,20 @@ jobs:
       - name: advzip (recompressApk)
         run: sudo apt-get update && sudo apt-get install -y advancecomp
 
-      # AGP genera el keystore de debug con BouncyCastle y muere con
-      # NoClassDefFoundError: org/bouncycastle/asn1/edec/EdECObjectIdentifiers.
-      # Con el keystore ya creado, validateSigning no pasa por ese camino.
-      - name: Caché del keystore de debug
-        uses: actions/cache@v4
-        with:
-          path: ~/.android/debug.keystore
-          key: novaide-debug-keystore-v1
-
+      # Las ramas y los tags no comparten caché, pero deben compartir la firma.
       - name: Keystore de debug
+        env:
+          NOVAIDE_DEBUG_KEYSTORE: ${{ secrets.NOVAIDE_DEBUG_KEYSTORE }}
         run: |
+          test -n "$NOVAIDE_DEBUG_KEYSTORE" || { echo "Falta NOVAIDE_DEBUG_KEYSTORE"; exit 1; }
           mkdir -p ~/.android
-          if [ ! -f ~/.android/debug.keystore ]; then
-            keytool -genkeypair -noprompt -keystore ~/.android/debug.keystore \
-              -storepass android -keypass android -alias androiddebugkey \
-              -keyalg RSA -keysize 2048 -validity 10000 \
-              -dname "CN=Android Debug,O=Android,C=US"
-          fi
-          # En este runner AGP resuelve ~/.config/.android, no ~/.android.
-          # ANDROID_USER_HOME es la primera variable que consulta.
+          printf '%s' "$NOVAIDE_DEBUG_KEYSTORE" | base64 --decode > ~/.android/debug.keystore
           echo "ANDROID_USER_HOME=$HOME/.android" >> "$GITHUB_ENV"
           keytool -list -keystore ~/.android/debug.keystore -storepass android | head -8
+          keytool -exportcert -keystore ~/.android/debug.keystore -storepass android \
+            -alias androiddebugkey > "$RUNNER_TEMP/novaide-cert.der"
+          fingerprint=$(openssl x509 -inform DER -in "$RUNNER_TEMP/novaide-cert.der" -noout -fingerprint -sha256 | cut -d= -f2)
+          test "$fingerprint" = "A8:D0:B1:5F:1C:65:67:9D:1E:96:C3:61:74:D3:4D:2E:CB:36:D5:71:53:DA:2D:17:E6:A3:E7:9A:8D:A6:71:04"
 
       - name: Validar firma
         run: ./gradlew :app:validateSigningV8Debug --no-daemon --max-workers=4
