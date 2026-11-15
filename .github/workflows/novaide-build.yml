@@ -28,9 +28,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # No borrar /usr/local/lib/android: es root y setup-android, que corre sin root,
+      # no puede recrearlo. El SDK preinstalado se reutiliza.
       - name: Liberar disco del runner
         run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo rm -rf /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
           df -h /
 
       - name: JDK 17
