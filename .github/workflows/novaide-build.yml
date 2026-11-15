@@ -93,11 +93,31 @@ jobs:
       - name: advzip (recompressApk)
         run: sudo apt-get update && sudo apt-get install -y advancecomp
 
+      # AGP genera el keystore de debug con BouncyCastle y muere con
+      # NoClassDefFoundError: org/bouncycastle/asn1/edec/EdECObjectIdentifiers.
+      # Con el keystore ya creado, validateSigning no pasa por ese camino.
+      - name: Caché del keystore de debug
+        uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: novaide-debug-keystore-v1
+
+      - name: Keystore de debug
+        run: |
+          mkdir -p ~/.android
+          if [ ! -f ~/.android/debug.keystore ]; then
+            keytool -genkeypair -noprompt -keystore ~/.android/debug.keystore \
+              -storepass android -keypass android -alias androiddebugkey \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -dname "CN=Android Debug,O=Android,C=US"
+          fi
+          keytool -list -keystore ~/.android/debug.keystore -storepass android | head -8
+
       - name: Descargar assets de runtime
         run: ./gradlew :app:assetsDownloadDebug --no-daemon --max-workers=4
 
       - name: Compilar APK y zip de assets
-        run: ./gradlew :app:assembleV8Debug :app:assembleV8Assets --no-daemon --max-workers=4
+        run: ./gradlew :app:assembleV8Debug :app:assembleV8Assets --no-daemon --max-workers=4 --stacktrace
 
       - name: Localizar salidas
         id: outputs
