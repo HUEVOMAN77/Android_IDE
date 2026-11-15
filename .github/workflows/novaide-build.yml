@@ -1,0 +1,122 @@
+name: NovaIDE build
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload_assets_zip:
+        description: "Subir también el zip de assets (1.5 GB) que la APK debug necesita en el teléfono"
+        type: boolean
+        default: true
+  push:
+    branches:
+      - "novaide/**"
+
+concurrency:
+  group: novaide-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: APK arm64 debug
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      INCLUDE_LLAMA_ASSETS: "false"
+      ANDROID_SDK_PACKAGES: "platforms;android-36 build-tools;36.0.0 cmake;3.31.6 platform-tools ndk;29.0.14206865"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Liberar disco del runner
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - name: JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Paquetes del SDK y NDK
+        run: |
+          yes | sdkmanager --licenses > /dev/null
+          sdkmanager $ANDROID_SDK_PACKAGES
+          sdkmanager --list_installed
+
+      - name: Caché de assets del upstream
+        uses: actions/cache@v4
+        with:
+          path: |
+            assets/*.zip
+            assets/documentation.db
+          key: novaide-debug-assets-v1
+          restore-keys: novaide-debug-assets-
+
+      - name: Caché de Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: novaide-gradle-${{ hashFiles('gradle/libs.versions.toml', 'gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: novaide-gradle-
+
+      # El gradle.properties del proyecto pide 8 GB de heap y 30 workers, pensado para
+      # las máquinas self-hosted del upstream. En GRADLE_USER_HOME tiene precedencia.
+      - name: Ajustar memoria al runner de 16 GB
+        run: |
+          mkdir -p ~/.gradle
+          cat > ~/.gradle/gradle.properties <<'EOF'
+          org.gradle.jvmargs=-Xmx6g -Dkotlin.daemon.jvm.options="-Xmx3g" -XX:+HeapDumpOnOutOfMemoryError --add-opens java.base/java.lang=ALL-UNNAMED --add-opens java.base/java.util=ALL-UNNAMED --add-opens java.base/java.io=ALL-UNNAMED
+          org.gradle.workers.max=4
+          org.gradle.parallel=true
+          org.gradle.caching=true
+          android.aapt2.daemonHeapSize=3072M
+          EOF
+
+      # El fork no tiene el proyecto Firebase del upstream. Sin este archivo falla
+      # :app:processV8DebugGoogleServices; con IDs falsos Analytics no envía nada.
+      - name: google-services.json del fork
+        run: cp ci/google-services.json app/google-services.json
+
+      - name: advzip (recompressApk)
+        run: sudo apt-get update && sudo apt-get install -y advancecomp
+
+      - name: Descargar assets de runtime
+        run: ./gradlew :app:assetsDownloadDebug --no-daemon --max-workers=4
+
+      - name: Compilar APK y zip de assets
+        run: ./gradlew :app:assembleV8Debug :app:assembleV8Assets --no-daemon --max-workers=4
+
+      - name: Localizar salidas
+        id: outputs
+        run: |
+          apk=$(find app/build/outputs/apk -path "*v8*/debug/*.apk" | head -n 1)
+          assets=$(find app/build/outputs/assets -name "assets-arm64-v8a.zip" | head -n 1)
+          test -n "$apk" || { echo "No se produjo ninguna APK"; exit 1; }
+          echo "apk=$apk" >> "$GITHUB_OUTPUT"
+          echo "assets=$assets" >> "$GITHUB_OUTPUT"
+          ls -lh "$apk" "$assets"
+          df -h /
+
+      - name: Subir APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: novaide-v8-debug
+          path: ${{ steps.outputs.outputs.apk }}
+          compression-level: 0
+          if-no-files-found: error
+
+      - name: Subir zip de assets
+        if: ${{ github.event_name != 'workflow_dispatch' || inputs.upload_assets_zip }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: novaide-assets-arm64-v8a
+          path: ${{ steps.outputs.outputs.assets }}
+          compression-level: 0
+          if-no-files-found: error
