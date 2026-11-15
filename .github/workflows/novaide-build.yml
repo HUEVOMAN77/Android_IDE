@@ -113,6 +113,13 @@ jobs:
           fi
           keytool -list -keystore ~/.android/debug.keystore -storepass android | head -8
 
+      - name: Diagnóstico de firma
+        run: |
+          env | grep -i android | sort
+          echo "HOME=$HOME  user.home esperado=$HOME"
+          ls -la ~/.android
+          ./gradlew :app:validateSigningV8Debug --no-daemon --max-workers=4 --stacktrace
+
       - name: Descargar assets de runtime
         run: ./gradlew :app:assetsDownloadDebug --no-daemon --max-workers=4
 
