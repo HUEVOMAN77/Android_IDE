@@ -41,8 +41,12 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      # El default del action instala el paquete "tools", que Google ya retiró del
+      # repositorio SDK y hace fallar a sdkmanager con exit 1.
       - name: Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: ${{ env.ANDROID_SDK_PACKAGES }}
 
       - name: Paquetes del SDK y NDK
         run: |
