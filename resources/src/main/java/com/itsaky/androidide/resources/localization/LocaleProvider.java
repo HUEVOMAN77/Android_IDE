@@ -42,7 +42,7 @@ public class LocaleProvider {
     putLocale(locales, keys, "ar", "SA"); // Arabic
     putLocale(locales, keys, "bn", "IN"); // Bengali (India)
     putLocale(locales, keys, "de", "DE"); // German
-    putLocale(locales, keys, "es", "ES"); // Spanish
+    putLocale(locales, keys, "es", null); // Español latino
     putLocale(locales, keys, "fr", "FR"); // French
     putLocale(locales, keys, "hi", "IN"); // Hindi
     putLocale(locales, keys, "in", "ID"); // Indonesian

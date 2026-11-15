@@ -4,12 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       upload_assets_zip:
-        description: "Subir también el zip de assets (1.5 GB) que la APK debug necesita en el teléfono"
+        description: "Subir también el zip de assets (1.1 GB) que la APK debug necesita en el teléfono"
         type: boolean
         default: true
+      publish_release:
+        description: "Publicar una release con la APK y el zip de assets"
+        type: boolean
+        default: false
+      release_tag:
+        description: "Etiqueta de la release (solo si se publica)"
+        type: string
+        default: "v0.1.0"
   push:
     branches:
       - "novaide/**"
+    tags:
+      - "v*"
 
 concurrency:
   group: novaide-build-${{ github.ref }}
@@ -20,6 +30,8 @@ jobs:
     name: APK arm64 debug
     runs-on: ubuntu-latest
     timeout-minutes: 240
+    permissions:
+      contents: write
     env:
       INCLUDE_LLAMA_ASSETS: "false"
       ANDROID_SDK_PACKAGES: "platforms;android-36 build-tools;36.0.0 cmake;3.31.6 platform-tools ndk;29.0.14206865"
@@ -152,3 +164,34 @@ jobs:
           path: ${{ steps.outputs.outputs.assets }}
           compression-level: 0
           if-no-files-found: error
+
+      # El zip de 1.1 GB lo sube el runner, no la conexión del usuario.
+      - name: Publicar release
+        if: ${{ startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish_release) }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || inputs.release_tag }}
+        run: |
+          cp "${{ steps.outputs.outputs.apk }}" NovaIDE-arm64-debug.apk
+          cp "${{ steps.outputs.outputs.assets }}" assets-arm64-v8a.zip
+          cat > "$RUNNER_TEMP/notas.md" <<'EOF'
+          IDE de Android para el teléfono. Fork de CodeOnTheGo con marca NovaIDE e interfaz en español latino. Versión de prueba; la compilación se verifica en CI y la prueba completa en el teléfono sigue pendiente.
+
+          ## Archivos
+          - `NovaIDE-arm64-debug.apk` — la app (arm64-v8a, Android 9 o superior).
+          - `assets-arm64-v8a.zip` — el entorno de ejecución (Gradle, JDK, SDK de Android, bootstrap de Termux). La APK debug no lo trae adentro, hay que bajarlo aparte.
+
+          ## Instalación
+          1. Bajá `assets-arm64-v8a.zip` y dejalo en `/sdcard/Download/assets-arm64-v8a.zip`, con ese nombre exacto, suelto en Download y **sin descomprimir**.
+          2. Instalá la APK (habilitá orígenes desconocidos si lo pide).
+          3. Abrí NovaIDE. Importa el entorno de ejecución sola en el primer arranque; tarda un rato.
+
+          Si aparece el cartel "Assets file not found", el zip no está en esa ruta o tiene otro nombre.
+
+          ## Notas
+          - `targetSdk` queda en 28 a propósito: desde Android 10 con target 29+ el sistema prohíbe ejecutar binarios que la app escribe, y eso rompería Gradle, el JDK y la terminal integrados.
+          - El paquete sigue siendo `com.itsaky.androidide` para conservar los datos y la compatibilidad con el upstream.
+          - Build debug firmada con la clave de debug del CI. Sirve para instalar y actualizar entre builds de este fork.
+          EOF
+          gh release create "$TAG" --target "$GITHUB_SHA" --title "NovaIDE $TAG" --prerelease \
+            --notes-file "$RUNNER_TEMP/notas.md" NovaIDE-arm64-debug.apk assets-arm64-v8a.zip

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+	<string name="app_name">Visor de Markdown</string>
+	<string name="plugin_title">Vista previa de archivos</string>
+	<string name="plugin_description">Previsualiza archivos Markdown y HTML con renderizado en vivo</string>
+	<string name="select_from_project">Proyecto</string>
+	<string name="select_from_storage">Almacenamiento</string>
+	<string name="refresh">Actualizar</string>
+	<string name="view_source">Código fuente</string>
+	<string name="view_preview">Vista previa</string>
+	<string name="empty_state_title">Ningún archivo seleccionado</string>
+	<string name="empty_state_subtitle">Selecciona un archivo de tu proyecto o del almacenamiento del dispositivo para ver la vista previa</string>
+	<string name="supported_formats">Formatos compatibles: .md, .markdown, .html, .htm</string>
+	<string name="loading">Cargando…</string>
+	<string name="no_project">No hay ningún proyecto disponible</string>
+	<string name="no_files_found">No se encontraron archivos compatibles</string>
+	<string name="file_not_found">Archivo no encontrado</string>
+	<string name="cannot_read_file">No se puede leer el archivo</string>
+	<string name="preview_file">Vista previa del archivo</string>
+	<string name="preview_markdown">Vista previa de Markdown</string>
+	<string name="preview_html">Vista previa de HTML</string>
+    <string name="file_picker_unavailable">El selector de archivos no está disponible</string>
+    <string name="file_load_failed">No se pudo cargar el archivo: %1$s</string>
+    <string name="file_not_found_named">No se encontró el archivo: %1$s</string>
+    <string name="file_unreadable_named">No se puede leer el archivo: %1$s</string>
+    <string name="loading_named_file">Cargando %1$s…</string>
+</resources>

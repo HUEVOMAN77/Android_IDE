@@ -27,4 +27,9 @@
     <string name="preview_file">Preview File</string>
     <string name="preview_markdown">Preview Markdown</string>
     <string name="preview_html">Preview HTML</string>
+    <string name="file_picker_unavailable">File picker is not available</string>
+    <string name="file_load_failed">Failed to load file: %1$s</string>
+    <string name="file_not_found_named">File not found: %1$s</string>
+    <string name="file_unreadable_named">Cannot read file: %1$s</string>
+    <string name="loading_named_file">Loading %1$s…</string>
 </resources>

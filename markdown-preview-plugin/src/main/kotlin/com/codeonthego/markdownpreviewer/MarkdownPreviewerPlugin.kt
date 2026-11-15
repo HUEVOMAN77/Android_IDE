@@ -3,6 +3,7 @@ package com.codeonthego.markdownpreviewer
 import androidx.fragment.app.Fragment
 import com.itsaky.androidide.plugins.IPlugin
 import com.itsaky.androidide.plugins.PluginContext
+import com.itsaky.androidide.plugins.base.PluginFragmentHelper
 import com.itsaky.androidide.plugins.extensions.UIExtension
 import com.itsaky.androidide.plugins.extensions.EditorTabExtension
 import com.itsaky.androidide.plugins.extensions.MenuItem
@@ -70,16 +71,16 @@ class MarkdownPreviewerPlugin : IPlugin, UIExtension, EditorTabExtension {
             return emptyList()
         }
         
-        val fileType = when {
-            isMarkdownFile(file) -> "Markdown"
-            isHtmlFile(file) -> "HTML"
-            else -> "File"
+        val titleResource = when {
+            isMarkdownFile(file) -> R.string.preview_markdown
+            isHtmlFile(file) -> R.string.preview_html
+            else -> R.string.preview_file
         }
         
         return listOf(
             MenuItem(
                 id = "preview_${file.name}",
-                title = "Preview $fileType",
+                title = checkNotNull(PluginFragmentHelper.getPluginContext(PLUGIN_ID)).getString(titleResource),
                 isEnabled = true,
                 isVisible = true,
                 action = {
@@ -97,7 +98,7 @@ class MarkdownPreviewerPlugin : IPlugin, UIExtension, EditorTabExtension {
         return listOf(
             NavigationItem(
                 id = "markdown_preview_sidebar",
-                title = "Preview",
+                title = checkNotNull(PluginFragmentHelper.getPluginContext(PLUGIN_ID)).getString(R.string.view_preview),
                 icon = android.R.drawable.ic_menu_gallery,
                 isEnabled = true,
                 isVisible = true,
@@ -116,7 +117,7 @@ class MarkdownPreviewerPlugin : IPlugin, UIExtension, EditorTabExtension {
         return listOf(
             EditorTabItem(
                 id = "markdown_preview_main_tab",
-                title = "Preview",
+                title = checkNotNull(PluginFragmentHelper.getPluginContext(PLUGIN_ID)).getString(R.string.view_preview),
                 icon = android.R.drawable.ic_menu_gallery,
                 fragmentFactory = {
                     context.logger.debug("Creating MarkdownPreviewFragment")
@@ -127,7 +128,7 @@ class MarkdownPreviewerPlugin : IPlugin, UIExtension, EditorTabExtension {
                 order = 50,
                 isEnabled = true,
                 isVisible = true,
-                tooltip = "Preview Markdown and HTML files"
+                tooltip = checkNotNull(PluginFragmentHelper.getPluginContext(PLUGIN_ID)).getString(R.string.plugin_description)
             )
         )
     }

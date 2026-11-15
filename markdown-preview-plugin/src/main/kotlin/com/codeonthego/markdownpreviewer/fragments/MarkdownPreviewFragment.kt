@@ -192,25 +192,25 @@ class MarkdownPreviewFragment : Fragment() {
             webView.visibility = View.GONE
             sourceScrollView.visibility = View.VISIBLE
             sourceCodeText.text = currentContent ?: ""
-            btnToggleView.text = "Preview"
+            btnToggleView.setText(R.string.view_preview)
         } else {
             // Show preview
             sourceScrollView.visibility = View.GONE
             webView.visibility = View.VISIBLE
-            btnToggleView.text = "Source"
+            btnToggleView.setText(R.string.view_source)
         }
     }
 
     private fun showProjectFilePicker() {
         val project = projectService?.getCurrentProject()
         if (project == null) {
-            showToast("No project available")
+            showToast(requireView().context.getString(R.string.no_project))
             return
         }
 
         // Find all supported files in the project
         viewLifecycleOwner.lifecycleScope.launch {
-            showProgress("Scanning project...")
+            showProgress(requireView().context.getString(R.string.loading))
             
             val files = withContext(Dispatchers.IO) {
                 findSupportedFiles(project.rootDir)
@@ -219,7 +219,7 @@ class MarkdownPreviewFragment : Fragment() {
             hideProgress()
             
             if (files.isEmpty()) {
-                showToast("No Markdown or HTML files found in project")
+                showToast(requireView().context.getString(R.string.no_files_found))
                 return@launch
             }
 
@@ -245,11 +245,11 @@ class MarkdownPreviewFragment : Fragment() {
         }.toTypedArray()
 
         android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Select File to Preview")
+            .setTitle(requireView().context.getString(R.string.preview_file))
             .setItems(fileNames) { _, which ->
                 loadFile(files[which])
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton(android.R.string.cancel, null)
             .show()
     }
 
@@ -264,12 +264,12 @@ class MarkdownPreviewFragment : Fragment() {
                 "text/plain"
             ))
         }
-        pickFileLauncher?.launch(intent) ?: showToast("File picker not available")
+        pickFileLauncher?.launch(intent) ?: showToast(requireView().context.getString(R.string.file_picker_unavailable))
     }
 
     private fun loadFileFromUri(uri: Uri) {
         viewLifecycleOwner.lifecycleScope.launch {
-            showProgress("Loading file...")
+            showProgress(requireView().context.getString(R.string.loading))
 
             val result = runCatching {
                 withContext(Dispatchers.IO) {
@@ -279,7 +279,7 @@ class MarkdownPreviewFragment : Fragment() {
                     // Read content from URI
                     val content = requireContext().contentResolver.openInputStream(uri)?.use { 
                         it.bufferedReader().readText() 
-                    } ?: throw Exception("Could not read file")
+                    } ?: throw Exception(requireView().context.getString(R.string.cannot_read_file))
 
                     // Determine file type
                     val lowerName = fileName.lowercase()
@@ -308,12 +308,12 @@ class MarkdownPreviewFragment : Fragment() {
                     isShowingSource = false
                     webView.visibility = View.VISIBLE
                     sourceScrollView.visibility = View.GONE
-                    btnToggleView.text = "Source"
+                    btnToggleView.setText(R.string.view_source)
                     renderContent(content, isMarkdown)
                 },
                 onFailure = { e ->
                     hideProgress()
-                    showError("Failed to load file: ${e.message}")
+                    showError(requireView().context.getString(R.string.file_load_failed, e.message))
                 }
             )
         }
@@ -338,19 +338,19 @@ class MarkdownPreviewFragment : Fragment() {
 
     private fun loadFile(file: File) {
         if (!file.exists()) {
-            showError("File not found: ${file.name}")
+            showError(requireView().context.getString(R.string.file_not_found_named, file.name))
             return
         }
 
         if (!file.canRead()) {
-            showError("Cannot read file: ${file.name}")
+            showError(requireView().context.getString(R.string.file_unreadable_named, file.name))
             return
         }
 
         currentFile = file
 
         viewLifecycleOwner.lifecycleScope.launch {
-            showProgress("Loading ${file.name}...")
+            showProgress(requireView().context.getString(R.string.loading_named_file, file.name))
 
             val result = runCatching {
                 withContext(Dispatchers.IO) {
@@ -370,14 +370,14 @@ class MarkdownPreviewFragment : Fragment() {
                     isShowingSource = false
                     webView.visibility = View.VISIBLE
                     sourceScrollView.visibility = View.GONE
-                    btnToggleView.text = "Source"
+                    btnToggleView.setText(R.string.view_source)
                     
                     val isMarkdown = MarkdownPreviewerPlugin.isMarkdownFile(file)
                     renderContent(content, isMarkdown)
                 },
                 onFailure = { e ->
                     hideProgress()
-                    showError("Failed to load file: ${e.message}")
+                    showError(requireView().context.getString(R.string.file_load_failed, e.message))
                 }
             )
         }

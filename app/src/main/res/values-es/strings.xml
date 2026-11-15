@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+	<string name="pref_use_simple_local_prompt">Usar aviso simplificado</string>
+	<string name="msg_strings_injection_failed">Falló la actualización de los recursos de cadenas generados.</string>
+	<string name="msg_strings_injection_file_not_found">No se pudo encontrar el archivo de recursos de cadenas del proyecto.</string>
+	<string name="msg_strings_injection_parser_unsupported">Este dispositivo no es compatible con la configuración del analizador XML necesaria para actualizar los recursos de cadenas generados.</string>
+	<string name="msg_strings_injection_invalid_xml">Los recursos de cadenas generados no son XML válido.</string>
+	<string name="msg_floating_window_open_failed">No se pudo abrir “%1$s” en una ventana flotante.</string>
+    <string name="context_selection_title">Agregar contexto</string>
+    <string name="selected_context_header">Contexto seleccionado</string>
+    <string name="selection_clear_all">Limpiar todo</string>
+    <string name="selection_confirm">Confirmar</string>
+    <string name="files_and_folders_title">Seleccionar archivos y carpetas</string>
+    <string name="local_model_not_selected">No se seleccionó un modelo</string>
+    <string name="browse_local_model">Seleccionar archivo del modelo</string>
+    <string name="load_saved_model">Cargar modelo guardado</string>
+    <string name="local_model_sha_hint">SHA-256 opcional para verificar</string>
+</resources>

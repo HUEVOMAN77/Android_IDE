@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+	<string name="ai_agent">Agente de IA</string>
+	<string name="cancel">Cancelar</string>
+	<string name="clear">Limpiar</string>
+	<string name="delete">Eliminar</string>
+	<string name="edit">Editar</string>
+	<string name="gemini_api_key">Clave de API de Gemini</string>
+	<string name="gemini_api_key_saved_on">Clave de API de Gemini guardada el %s</string>
+	<string name="hmmm">¯\\_(ツ)_/¯</string>
+	<string name="rename">Renombrar</string>
+	<string name="save_key">Guardar clave</string>
+	<string name="ai_settings">Ajustes de IA</string>
+	<string name="history">Historial</string>
+	<string name="delete_project">Eliminar proyecto</string>
+	<string name="rename_project">Renombrar proyecto</string>
+	<string name="options">Opciones</string>
+	<string name="create">Crear</string>
+	<string name="msg_new_project_name">Ingresa el nombre del nuevo proyecto</string>
+	<string name="msg_delete_project">¿Seguro que quieres quitar el proyecto?</string>
+	<string name="msg_current_name_unavailable">¡El nombre actual no está disponible!</string>
+	<string name="msg_cannnot_empty">¡El campo no puede estar vacío!</string>
+	<string name="obfuscated_api_key">••••••••••••••••••••</string>
+	<string name="api_key_saved_securely">La clave de API se guardó de forma segura.</string>
+	<string name="api_key_is_saved">La clave de API está guardada.</string>
+	<string name="api_key_cleared">Se eliminó la clave de API.</string>
+	<string name="api_key_cannot_be_empty">La clave de API no puede estar vacía.</string>
+</resources>

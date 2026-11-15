@@ -8,7 +8,7 @@
         android:id="@+id/engine_status_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Initializing engine..."
+        android:text="@string/ai_setting_initializing_engine"
         android:textAppearance="?attr/textAppearanceBody2"
         android:layout_marginTop="8dp"/>
     <TextView
@@ -24,7 +24,7 @@
         android:id="@+id/selected_model_path"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="No model selected"
+        android:text="@string/local_model_not_selected"
         android:textAppearance="?attr/textAppearanceBody2"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:paddingBottom="8dp"/>
@@ -33,7 +33,7 @@
         android:id="@+id/btn_browse_model"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Browse for Model File" />
+        android:text="@string/browse_local_model" />
 
     <Button
         android:id="@+id/loadSavedButton"
@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:enabled="false"
-        android:text="Load from saved"
+        android:text="@string/load_saved_model"
         tools:enabled="true" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -49,7 +49,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
-        android:hint="Optional SHA-256 (for verification)">
+        android:hint="@string/local_model_sha_hint">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/local_model_sha_input"

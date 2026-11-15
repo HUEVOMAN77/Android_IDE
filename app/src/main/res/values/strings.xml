@@ -24,4 +24,13 @@
     <string name="msg_strings_injection_parser_unsupported">This device does not support the XML parser configuration required to update generated string resources.</string>
     <string name="msg_strings_injection_invalid_xml">Generated string resources are not valid XML.</string>
     <string name="msg_floating_window_open_failed">Couldn\'t open “%1$s” in a floating window.</string>
+    <string name="context_selection_title">Add context</string>
+    <string name="selected_context_header">Selected context</string>
+    <string name="selection_clear_all">Clear all</string>
+    <string name="selection_confirm">Confirm</string>
+    <string name="files_and_folders_title">Select files and folders</string>
+    <string name="local_model_not_selected">No model selected</string>
+    <string name="browse_local_model">Browse for model file</string>
+    <string name="load_saved_model">Load saved model</string>
+    <string name="local_model_sha_hint">Optional SHA-256 for verification</string>
 </resources>
