@@ -116,9 +116,17 @@ jobs:
       - name: Diagnóstico de firma
         run: |
           env | grep -i android | sort
-          echo "HOME=$HOME  user.home esperado=$HOME"
+          echo "HOME=$HOME"
           ls -la ~/.android
-          ./gradlew :app:validateSigningV8Debug --no-daemon --max-workers=4 --stacktrace
+          set +e
+          ./gradlew :app:validateSigningV8Debug --no-daemon --max-workers=4 --stacktrace --info \
+            > "$RUNNER_TEMP/validate.log" 2>&1
+          status=$?
+          set -e
+          grep -n "Creating default debug keystore" "$RUNNER_TEMP/validate.log" || echo "sin linea de creacion"
+          grep -n "user.home\|androidDir\|ANDROID_USER_HOME" "$RUNNER_TEMP/validate.log" | head -5
+          tail -n 30 "$RUNNER_TEMP/validate.log"
+          exit $status
 
       - name: Descargar assets de runtime
         run: ./gradlew :app:assetsDownloadDebug --no-daemon --max-workers=4
